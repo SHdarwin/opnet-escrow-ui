@@ -21,9 +21,7 @@ export default function Home() {
         return;
       }
 
-      const provider = opnet.web3.provider;
-
-      const accounts = await provider.requestAccounts();
+      const accounts = await opnet.web3.provider.requestAccounts();
 
       if (accounts?.length) {
         setAddress(accounts[0]);
