@@ -33,19 +33,30 @@ async function selector(name: string): Promise<Uint8Array> {
 //  CALLDATA ENCODERS — BinaryWriter з @btc-vision/transaction
 // ─────────────────────────────────────────────────────────────────────────────
 
+function writerToBuffer(writer: BinaryWriter): Buffer {
+  // BinaryWriter may expose buffer via different properties
+  const buf = (writer as any).buffer
+    ?? (writer as any).toBuffer?.()
+    ?? (writer as any).getBuffer?.()
+    ?? (writer as any).toBytes?.()
+    ?? (writer as any)._buffer;
+  if (!buf) throw new Error("BinaryWriter: cannot extract buffer. Check @btc-vision/transaction version.");
+  return Buffer.from(buf);
+}
+
 async function encodeCreateOrder(price: bigint, deadlineBlocks: bigint): Promise<Buffer> {
   const sel    = await selector("createOrder");
   const writer = new BinaryWriter();
   writer.writeU256(price);
   writer.writeU64(deadlineBlocks);
-  return Buffer.concat([Buffer.from(sel), Buffer.from(writer.getBuffer())]);
+  return Buffer.concat([Buffer.from(sel), writerToBuffer(writer)]);
 }
 
 async function encodeWithOrderId(method: string, orderId: bigint): Promise<Buffer> {
   const sel    = await selector(method);
   const writer = new BinaryWriter();
   writer.writeU64(orderId);
-  return Buffer.concat([Buffer.from(sel), Buffer.from(writer.getBuffer())]);
+  return Buffer.concat([Buffer.from(sel), writerToBuffer(writer)]);
 }
 
 async function encodeGetEscrowStats(): Promise<Buffer> {
