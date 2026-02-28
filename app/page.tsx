@@ -121,33 +121,6 @@ async function sendContractTx(
   statusCb: (msg: string) => void
 ): Promise<void> {
   statusCb("Preparing transaction…");
-
-
-  if (typeof provider.signInteraction === "function") {
-    statusCb("Waiting for wallet signature…");
-    await provider.signInteraction({
-      contract:        CONTRACT_ADDRESS,
-      contractAddress: CONTRACT_ADDRESS,
-      calldata:        "0x" + calldata.toString("hex"),
-      value:           "0x0",
-      gasLimit:        "0x0",
-    });
-    return;
-  }
-
-  if (typeof provider.sendInteraction === "function") {
-    statusCb("Waiting for wallet signature…");
-    await provider.sendInteraction({
-      contract:        CONTRACT_ADDRESS,
-      contractAddress: CONTRACT_ADDRESS,
-      to:              CONTRACT_ADDRESS,
-      calldata:        calldata,
-      calldataHex:     "0x" + calldata.toString("hex"),
-    });
-    return;
-  }
-
-
   statusCb("Fetching UTXOs…");
   const rawUtxos: any[] = await provider.getBitcoinUtxos();
   if (!rawUtxos.length) throw new Error("No UTXOs available");
